@@ -142,52 +142,98 @@ def main():
 
     with tab2:
 
-        test = st.file_uploader("input the sign_mnist_test.csv file here please!!")
-        if test is not None:
-            test = pd.read_csv(test)
+        # test = st.file_uploader("input the sign_mnist_test.csv file here please!!")
+        test = pd.read_csv('./sign_mnist_test.csv')
 
-            # klass data prep
-            test["label"][test["label"]>=10] = test["label"] -1
+        # klass data prep
+        test["label"][test["label"]>=10] = test["label"] -1
 
-            test_data = test.drop("label", axis = 1)
-            test_labels = test['label']
-            test_data = np.array(test_data)
+        test_data = test.drop("label", axis = 1)
+        test_labels = test['label']
+        test_data = np.array(test_data)
 
-            test_data = test_data/255
+        test_data = test_data/255
 
-            test_data = test_data.reshape(test_data.shape[0], 28, 28, 1)
+        test_data = test_data.reshape(test_data.shape[0], 28, 28, 1)
+        
+        index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
+        letter_to_index = dict([(value, key) for key, value in index_to_letter.items()])
 
-            #st.markdown("testtesttest")
+        if test_data is not None:
+            # user picks a letter
+            letter = 'a'
+            index = letter_to_index[letter]
 
-            # mapping function for label index to true alphabetical character
-            index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
+            # filter test data for the chosen letter
+            df = test_data[test_labels == index, :]
 
-            predictions = klaasmodel.predict(test_data, verbose = 0)
-            predicted_labels = np.argmax(predictions, axis=1)
+            # obtain one random row of the chosen letter
+            image_num = np.random.randint(1, df.shape[0])
+            df = df[[image_num], :]
 
-            # random test image
-            randomnum = np.random.randint(1,7170)
-            image_num = randomnum
+            # make prediction and retrieve predicted letter
+            predictions = klaasmodel.predict(df, verbose = 0)
+            predicted_label = np.argmax(predictions, axis = 1)[0]
+            
+            pred_letter = index_to_letter[predicted_label]
+            true_letter = letter
 
-            ### note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
+            ## note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
             st.pyplot(plt.imshow(test.iloc[image_num][1:].values.reshape(28,28,1), cmap='gray').figure)
             plt.show()
-
-            # reshape and normalize test image
-            img = np.array(test.iloc[image_num][1:])
-            img = img.reshape(1,28,28,1)
-            img = img/255
-
-            # make prediction on test image
-            prediction = np.argmax(klaasmodel.predict(img), axis = 1 )[0]
-            pred_letter = index_to_letter[prediction]
-            # return true prediction
-            true_letter = index_to_letter[test.iloc[image_num][0]]
 
             #st.markdown(pred_letter)
             st.markdown(f'<p style="font-size:60px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
             #st.markdown( true_letter)
             st.markdown(f'<p style="font-size:60px; padding: 10px;">Actual Letter : {true_letter}</p>', unsafe_allow_html=True)
+
+
+
+        # if test is not None:
+        #     test = pd.read_csv(test)
+
+        #     # klass data prep
+        #     test["label"][test["label"]>=10] = test["label"] -1
+
+        #     test_data = test.drop("label", axis = 1)
+        #     test_labels = test['label']
+        #     test_data = np.array(test_data)
+
+        #     test_data = test_data/255
+
+        #     test_data = test_data.reshape(test_data.shape[0], 28, 28, 1)
+
+        #     #st.markdown("testtesttest")
+
+        #     # mapping function for label index to true alphabetical character
+        #     index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
+
+        #     predictions = klaasmodel.predict(test_data, verbose = 0)
+        #     predicted_labels = np.argmax(predictions, axis=1)
+
+        #     # random test image
+        #     randomnum = np.random.randint(1,7170)
+        #     image_num = randomnum
+
+        #     ### note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
+        #     st.pyplot(plt.imshow(test.iloc[image_num][1:].values.reshape(28,28,1), cmap='gray').figure)
+        #     plt.show()
+
+        #     # reshape and normalize test image
+        #     img = np.array(test.iloc[image_num][1:])
+        #     img = img.reshape(1,28,28,1)
+        #     img = img/255
+
+        #     # make prediction on test image
+        #     prediction = np.argmax(klaasmodel.predict(img), axis = 1 )[0]
+        #     pred_letter = index_to_letter[prediction]
+        #     # return true prediction
+        #     true_letter = index_to_letter[test.iloc[image_num][0]]
+
+        #     #st.markdown(pred_letter)
+        #     st.markdown(f'<p style="font-size:60px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
+        #     #st.markdown( true_letter)
+        #     st.markdown(f'<p style="font-size:60px; padding: 10px;">Actual Letter : {true_letter}</p>', unsafe_allow_html=True)
             
 
    
