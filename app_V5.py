@@ -174,18 +174,19 @@ def main():
             # make prediction and retrieve predicted letter
             predictions = klaasmodel.predict(df, verbose = 0)
             predicted_label = np.argmax(predictions, axis = 1)[0]
-            
+
             pred_letter = index_to_letter[predicted_label]
             true_letter = letter
 
             ## note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
             st.pyplot(plt.imshow(test.iloc[image_num][1:].values.reshape(28,28,1), cmap='gray').figure)
+            plt.axis('off')
             plt.show()
 
             #st.markdown(pred_letter)
-            st.markdown(f'<p style="font-size:60px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="font-size:40px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
             #st.markdown( true_letter)
-            st.markdown(f'<p style="font-size:60px; padding: 10px;">Actual Letter : {true_letter}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="font-size:40px; padding: 10px;">Actual Letter : {true_letter}</p>', unsafe_allow_html=True)
 
 
 
