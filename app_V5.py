@@ -94,14 +94,15 @@ def main():
     model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
     klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
 
-    tab1, tab2 = st.tabs(["Camera Translator","Picture Translator"])
+    tab1, tab2 = st.tabs(["Camera Translator", "Picture Translator"])
 
 
     with tab1:
         #page header
 
         st.sidebar.image("gulogo.png" , use_column_width = True)
-        st.sidebar.image("ASL.png", use_column_width=True)
+        st.sidebar.image("ASL.png", use_column_width = True)
+        st.sidebar.text('Matt, Justin, Klaas, Brendan')
 
         #textlist = []
         #st.session_state['textlist'] = []
