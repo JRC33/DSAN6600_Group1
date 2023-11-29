@@ -29,7 +29,7 @@ def increment(imageCaptured):
     
     #st.session_state.count.append('test')
     model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    klaasmodel = tf.keras.models.load_model('/model_file/sign_language_model.keras')
+    klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
 
     img = Image.open(imageCaptured)
 
@@ -92,7 +92,7 @@ def main():
 
 
     model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    klaasmodel = tf.keras.models.load_model('/model_file/sign_language_model.keras')
+    klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
 
     tab1, tab2 = st.tabs(["Camera Translator","Picture Translator"])
 
