@@ -184,7 +184,7 @@ def main():
                 fig, ax = plt.subplots(1, 1, figsize = (6, 6))
                 plt.imshow(df.reshape(28, 28, 1), cmap = 'gray')
                 plt.axis('off')
-                plt.savefig('letter_image.png', bbox_inches = 'tight', pad_inches = 0.1)
+                plt.savefig('letter_image.png', bbox_inches = 'tight')
                 st.image('letter_image.png')
                 # st.pyplot(fig.figure)
 
