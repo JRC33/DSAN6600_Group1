@@ -161,7 +161,7 @@ def main():
 
         if test_data is not None:
             # user picks a letter
-            letter = st.text_input('Letter Input', 'Life of Brian')
+            letter = st.text_input('Letter Input', '')
             index = letter_to_index[letter]
 
             # filter test data for the chosen letter
