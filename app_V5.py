@@ -102,7 +102,8 @@ def main():
 
         st.sidebar.image("gulogo.png" , use_column_width = True)
         st.sidebar.image("ASL.png", use_column_width = True)
-        st.sidebar.markdown('<center><p>Group 1</p><p>Brendan Baker</p><p>Justin Ceresa</p><p>Klaas van Kemped</p><p>Matt Moriarty</p></center>', unsafe_allow_html = True)
+        st.sidebar.markdown('<center><p style="font-size:20px;">Group 1</p></center>')
+        st.sidebar.markdown('<center><p>Brendan Baker</p><p>Justin Ceresa</p><p>Klaas van Kemped</p><p>Matt Moriarty</p></center>', unsafe_allow_html = True)
 
         #textlist = []
         #st.session_state['textlist'] = []
