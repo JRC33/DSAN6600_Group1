@@ -111,7 +111,7 @@ def main():
 
 
         #st.markdown('<p style="font-size:60px;">Sign Language Translator</p>', unsafe_allow_html=True)
-        st.markdown('<center><p style="font-size:60px; background-color:#a0bff0; padding: 10px;">Sign Language Translator</p></center>', unsafe_allow_html=True)
+        st.markdown('<center><p style="font-size:60px; background-color:#041E42; padding: 10px;">Sign Language Translator</p></center>', unsafe_allow_html=True)
         
         
         #st.markdown(torch.__version__, torchvision.__version__)
