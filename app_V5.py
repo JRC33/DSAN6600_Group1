@@ -102,6 +102,7 @@ def main():
 
         st.sidebar.image("gulogo.png" , use_column_width = True)
         st.sidebar.image("ASL.png", use_column_width = True)
+        st.sidebar.markdown('<center><b><p style="font-size:20px;"></p></b></center>', unsafe_allow_html = True)
         st.sidebar.markdown('<center><b><p style="font-size:20px;">Group 1</p></b></center>', unsafe_allow_html = True)
         st.sidebar.markdown('<center><p>Brendan Baker, Justin Ceresa</p><p>Klaas van Kempen, Matt Moriarty</p></center>', unsafe_allow_html = True)
 
