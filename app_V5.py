@@ -142,7 +142,7 @@ def main():
 
     with tab2:
 
-        test = st.file_uploader("input the sign_mnist_test.csv file here please")
+        test = st.file_uploader("input the sign_mnist_test.csv file here please!!")
         if test is not None:
             test = pd.read_csv(test)
 
