@@ -205,6 +205,7 @@ def main():
 
                 df_table = pd.DataFrame({'Predicted Letter': [pred_letter],
                                          'Actual Letter': [true_letter]})
+                df_table.set_index(df_table.columns[0])
                 
                 st.table(df_table)
 
