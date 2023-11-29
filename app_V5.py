@@ -163,7 +163,7 @@ def main():
             # user picks a letter
             letter = st.text_input('Letter Input', '', placeholder = 'Enter a letter...')
 
-            if letter is not None:
+            if letter != '':
                 index = letter_to_index[letter]
 
                 # filter test data for the chosen letter
