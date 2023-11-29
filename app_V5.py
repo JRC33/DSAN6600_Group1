@@ -16,7 +16,7 @@ import torchvision
 import IPython
 import shutil
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="centered")
 st.session_state['textlist'] = 0
 
 
