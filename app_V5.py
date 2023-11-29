@@ -203,6 +203,11 @@ def main():
                 # plt.axis('off')
                 plt.show()
 
+                df_table = pd.DataFrame({'Predicted Letter': [pred_letter],
+                                         'Actual Letter': [true_letter]})
+                
+                st.table(df_table)
+
                 #st.markdown(pred_letter)
                 st.markdown(f'<p style="font-size:40px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
                 #st.markdown( true_letter)
