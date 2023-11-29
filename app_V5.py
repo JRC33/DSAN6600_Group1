@@ -136,7 +136,7 @@ def main():
     
         imageCaptured = st.camera_input("Do some sign language!" , help ="Do some sign language!" )
 
-        fancybutton = st.button('Translate', on_click = increment , args = (imageCaptured,))
+        fancybutton = st.button('Translate', use_container_width = True, on_click = increment , args = (imageCaptured,))
 
 
 
