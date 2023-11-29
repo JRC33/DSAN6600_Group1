@@ -9,3 +9,4 @@ pillow==9.4.0
 torch==2.1.1
 torchvision==0.16.1
 IPython==8.12.2
+ultralytics
