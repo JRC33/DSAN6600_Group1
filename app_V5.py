@@ -206,8 +206,12 @@ def main():
                 df_table = pd.DataFrame({'Predicted Letter': [pred_letter],
                                          'Actual Letter': [true_letter]})
                 df_table.set_index(df_table.columns[0])
+
+                styler = df_table.style.hide_index()
+
+                st.write(styler.to_html(), unsafe_allow_html=True)
                 
-                st.table(df_table)
+                # st.table(df_table)
 
                 #st.markdown(pred_letter)
                 st.markdown(f'<p style="font-size:40px; padding: 10px;">Predicted Letter : {pred_letter}</p>', unsafe_allow_html=True)
