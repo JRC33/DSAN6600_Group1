@@ -181,12 +181,22 @@ def main():
                 true_letter = letter
 
                 ## note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
-                fig, ax = plt.subplots(1, 1, figsize = (6, 6))
+                fig, ax = plt.subplots(1, 1, figsize = (5, 5))
                 plt.imshow(df.reshape(28, 28, 1), cmap = 'gray')
                 plt.axis('off')
                 plt.tight_layout()
                 plt.savefig('letter_image.png')
-                st.image('letter_image.png')
+
+                col1, col2, col3 = st.columns(3)
+
+                with col1:
+                    st.write(' ')
+
+                with col2:
+                    st.image('letter_image.png')
+
+                with col3:
+                    st.write(' ')
                 # st.pyplot(fig.figure)
 
                 # st.pyplot(plt.imshow(df.reshape(28,28,1), cmap='gray').figure)
