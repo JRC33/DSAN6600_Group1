@@ -187,7 +187,7 @@ def main():
                 plt.tight_layout()
                 plt.savefig('letter_image.png')
 
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3 = st.columns(3, [1, 3, 1])
 
                 with col1:
                     st.write(' ')
