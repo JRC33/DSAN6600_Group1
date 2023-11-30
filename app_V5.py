@@ -41,10 +41,21 @@ def increment(imageCaptured):
 
     #st.image('runs/detect/exp/image0.jpg' , width = 300)
 
-    result = results.pandas().xyxy[0]
-    xmin, xmax, ymin, ymax = int(result['xmin']), int(result['xmax']), int(result['ymin']), int(result['ymax'])
+    # result = results.pandas().xyxy[0]
+    # xmin, xmax, ymin, ymax = int(result['xmin']), int(result['xmax']), int(result['ymin']), int(result['ymax'])
 
-
+    # store the bounding box for the hand, as detected by the YOLO model
+    try:
+        # if mulitple boxes, take the largest one
+        result = results.pandas().xyxy[0]
+        result['area'] = (result['xmax'] - result['xmin']) * (result['ymax'] - result['ymin'])
+        result = result.sort_values(by = ['area'], ascending = False)
+        result = result.iloc[0]
+        xmin, xmax, ymin, ymax = int(result['xmin']), int(result['xmax']), int(result['ymin']), int(result['ymax'])
+    except:
+        # print(f'Result not found for letter {value}, using entire image')
+        xmin, xmax, ymin, ymax = 0, img.shape[1], 0, img.shape[0]
+    # xmin, xmax, ymin, ymax = 0, hand.shape[1], 0, hand.shape[0]
 
 
 
