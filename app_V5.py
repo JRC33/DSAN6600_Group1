@@ -129,7 +129,7 @@ def main():
         st.markdown('<center><p style="font-size:60px; color:#ffffff; background-color:#041E42; padding: 10px;">Sign Language Translator</p></center>', unsafe_allow_html=True)
         
         # only display the translated letters if we've attempted to translate at least one
-        if 'textlist' in st.session_state:
+        if 'count' in st.session_state:
 
             # display the translated letters consecutively
             st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.textlist)}</p>', unsafe_allow_html = True)
