@@ -1,156 +1,150 @@
 
 ### Package Imports ###
+
+# streamlit library
 import streamlit as st
+
+# data manipulation libraries
 import pandas as pd
 import numpy as np
+
+# deep learning libraries
 import tensorflow as tf
 from tensorflow import keras
+import torch
+import torchvision
+
+# os-related libraries
 import os
+import shutil
+
+# plotting/extra libraries
 import matplotlib.pyplot as plt
 import cv2
 import skimage.measure
+import IPython
 import PIL
 from PIL import Image
-import torch
-import torchvision
-import IPython
-import shutil
 
-st.set_page_config(layout="centered")
-st.session_state['textlist'] = 0
+# center the layout of the page
+st.set_page_config(layout = "centered")
+
+model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
+klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
+
+# store a 'session state' variable, which persists through repeated actions in the application
+# st.session_state['textlist'] = 0
 
 
 
+# define a callback function to translate an image, triggered when a button is clicked
+def translate_image(imageCaptured):
 
-def increment(imageCaptured):
-    if 'count' not in st.session_state:
-        st.session_state.count = []
+    # store a 'session state' variable, which persists through repeated actions in the application
+    if 'textlist' not in st.session_state:
+        st.session_state.textlist = []
 
-    
-    #st.session_state.count.append('test')
-    model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
+    # load the YOLO object detection model and our own sign language translation CNN model
+    # model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
+    # klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
 
+    # open the captured image
     img = Image.open(imageCaptured)
 
-    os.system('rm -rf runs')
+    # prepare for object detection by removing the 'runs' folder that the YOLO model will create
+    # os.system('rm -rf runs')
 
+    # send the image through the YOLO model
     results = model_yolo(img)
     results.save()
 
-
-    #st.image('runs/detect/exp/image0.jpg' , width = 300)
-
-    # result = results.pandas().xyxy[0]
-    # xmin, xmax, ymin, ymax = int(result['xmin']), int(result['xmax']), int(result['ymin']), int(result['ymax'])
-
     # store the bounding box for the hand, as detected by the YOLO model
     try:
-        # if mulitple boxes, take the largest one
+        # start by obtaining the results as a pandas dataframe
         result = results.pandas().xyxy[0]
+        # calculate bounding box areas and take the largest detected bounding box in case there are multiple
         result['area'] = (result['xmax'] - result['xmin']) * (result['ymax'] - result['ymin'])
         result = result.sort_values(by = ['area'], ascending = False)
         result = result.iloc[0]
+        # store the bounds of the bounding box
         xmin, xmax, ymin, ymax = int(result['xmin']), int(result['xmax']), int(result['ymin']), int(result['ymax'])
     except:
-        # print(f'Result not found for letter {value}, using entire image')
+        # if there are somehow no bounding boxes detected, use the whole image instead of cropping
         xmin, xmax, ymin, ymax = 0, img.shape[1], 0, img.shape[0]
-    # xmin, xmax, ymin, ymax = 0, hand.shape[1], 0, hand.shape[0]
 
-
-
+    # store the image as a numpy array for easy manipulation
     img_array = np.array(img)
 
-
-    # crop to bounding box
+    # crop the image to the detected bounding box
+    # remember rows are actually y-values and columns are x-values
     img_array = img_array[ymin:ymax, xmin:xmax, :]
 
-    # make greyscale
+    # make image greyscale by averaging the color dimension ( shape (m, n, 1) )
     img_array = img_array.mean(axis = 2, keepdims = True)
 
-    # expand dim to have (m, n, 1) shape
-    
-    
-
-    
+    # define step sizes for reducing the image to shape (28, 28, 1)
     step_size_i = img_array.shape[0] // 28
     step_size_j = img_array.shape[1] // 28
 
+    # scan over the image, averaging out blocks of pixels
     img_array = skimage.measure.block_reduce(img_array, (step_size_i, step_size_j, 1), np.mean)
 
-
-    #if the shape is not divisible by 28, we have dimensions of size 29
+    # if the previous shape is not divisible by 28, we have dimensions of size 29,
+    # so we need to get rid of the excess row and column (size equal to remainder)
     img_array = img_array[:28, :28, :]
 
-    # to send to model, we need the batch dimension as well
+    # to send to model, we need the batch dimension as well ( now shape (1, 28, 28, 1) )
     img_array = np.expand_dims(img_array, 0)
 
-    
-    #shows pixelated image
-    #st.pyplot(plt.imshow(img_array.reshape(28,28,-1), cmap='gray').figure)
-    img_array = img_array/255
+    # finally, normalize pixel intensities from [0, 255] to [0, 1]
+    img_array = img_array / 255
 
+    # store mapping from predicted indices to translated letters
     index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
 
-
-    
+    # use the sign language translation CNN model to translate the image and store it in the persistent session state
     prediction = np.argmax(klaasmodel.predict(img_array), axis = 1 )[0]
     pred_letter = index_to_letter[prediction]
-    st.session_state.count.append(pred_letter)
+    st.session_state.textlist.append(pred_letter)
 
 
+# main streamlit function
 def main():
 
 
-    model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
+    # model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
+    # klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
 
+    # create two tabs, one for live camera sign translation, one for translating images from the dataset
     tab1, tab2 = st.tabs(["Camera Translator", "Picture Translator"])
 
-
+    # define the functionality of tab 1
     with tab1:
-        #page header
 
+        # include Georgetown University logo and a sign language image
         st.sidebar.image("gulogo.png" , use_column_width = True)
         st.sidebar.image("ASL.png", use_column_width = True)
+
+        # include names and group number
         st.sidebar.markdown('<br>', unsafe_allow_html = True)
         st.sidebar.markdown('<center><b><p style="font-size:20px;">Group 1</p></b></center>', unsafe_allow_html = True)
         st.sidebar.markdown('<center><p>Brendan Baker, Justin Ceresa</p><p>Klaas van Kempen, Matt Moriarty</p></center>', unsafe_allow_html = True)
 
-        #textlist = []
-        #st.session_state['textlist'] = []
-
-
-        #st.markdown('<p style="font-size:60px;">Sign Language Translator</p>', unsafe_allow_html=True)
+        # create a large title to indicate that this is a sign language translator
         st.markdown('<center><p style="font-size:60px; color:#ffffff; background-color:#041E42; padding: 10px;">Sign Language Translator</p></center>', unsafe_allow_html=True)
         
-        
-        #st.markdown(torch.__version__, torchvision.__version__)
+        # only display the translated letters if we've attempted to translate at least one
+        if 'textlist' in st.session_state:
 
-
-        #bring in models
-        #st.markdown("before model import")
-        #model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-        #klaasmodel = tf.keras.models.load_model('../model_file/sign_language_model.keras')
-        #st.markdown("after model import")
-
-        #remove runs folder just in case 
-
-        # if 'count' not in st.session_state:
-        #     st.session_state.count = 0
-
-        # increment = st.button('Increment')
-        # if increment:
-        #     st.session_state.count += 1
-
-        if 'count' in st.session_state:
-
-            #st.markdown(st.session_state.count)
-            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.count)}</p>', unsafe_allow_html=True)
+            # display the translated letters consecutively
+            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.textlist)}</p>', unsafe_allow_html = True)
     
-        imageCaptured = st.camera_input("Do some sign language!" , help ="Do some sign language!" )
+        # capture a live image using the camera
+        imageCaptured = st.camera_input("Do some sign language!" , help = "Do some sign language!")
 
-        fancybutton = st.button('Translate', use_container_width = True, on_click = increment , args = (imageCaptured,))
+        # create a translation button that kicks off the deep learning pipeline after collecting an image
+        # when clicked, this button triggers the 'translate_image' callback function with arguments 'args'
+        fancybutton = st.button('Translate', use_container_width = True, on_click = translate_image, args = (imageCaptured,))
 
 
 
