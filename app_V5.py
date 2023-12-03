@@ -132,8 +132,8 @@ def main():
         if 'count' in st.session_state:
 
             # display the translated letters consecutively
-            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.count)}</p>', unsafe_allow_html = True)
-    
+            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.count)}</p>', unsafe_allow_html=True)
+
         # capture a live image using the camera
         imageCaptured = st.camera_input("Do some sign language!" , help = "Do some sign language!")
 
