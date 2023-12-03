@@ -29,8 +29,16 @@ from PIL import Image
 # center the layout of the page
 st.set_page_config(layout = "centered")
 
+# load the YOLO object detection model and our own sign language translation CNN model
 model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
 klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
+
+# store mapping from predicted indices to translated letters and back
+index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f',
+                   6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm',
+                   12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's',
+                   18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
+letter_to_index = dict([(value, key) for key, value in index_to_letter.items()])
 
 # store a 'session state' variable, which persists through repeated actions in the application
 # st.session_state['textlist'] = 0
@@ -44,15 +52,8 @@ def translate_image(imageCaptured):
     if 'textlist' not in st.session_state:
         st.session_state.textlist = []
 
-    # load the YOLO object detection model and our own sign language translation CNN model
-    # model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    # klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
-
     # open the captured image
     img = Image.open(imageCaptured)
-
-    # prepare for object detection by removing the 'runs' folder that the YOLO model will create
-    # os.system('rm -rf runs')
 
     # send the image through the YOLO model
     results = model_yolo(img)
@@ -99,9 +100,6 @@ def translate_image(imageCaptured):
     # finally, normalize pixel intensities from [0, 255] to [0, 1]
     img_array = img_array / 255
 
-    # store mapping from predicted indices to translated letters
-    index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
-
     # use the sign language translation CNN model to translate the image and store it in the persistent session state
     prediction = np.argmax(klaasmodel.predict(img_array), axis = 1 )[0]
     pred_letter = index_to_letter[prediction]
@@ -111,12 +109,9 @@ def translate_image(imageCaptured):
 # main streamlit function
 def main():
 
-
-    # model_yolo = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained = True)
-    # klaasmodel = tf.keras.models.load_model('./model_file/sign_language_model.keras')
-
     # create two tabs, one for live camera sign translation, one for translating images from the dataset
     tab1, tab2 = st.tabs(["Camera Translator", "Picture Translator"])
+
 
     # define the functionality of tab 1
     with tab1:
@@ -144,37 +139,40 @@ def main():
 
         # create a translation button that kicks off the deep learning pipeline after collecting an image
         # when clicked, this button triggers the 'translate_image' callback function with arguments 'args'
-        fancybutton = st.button('Translate', use_container_width = True, on_click = translate_image, args = (imageCaptured,))
+        translate_button = st.button('Translate', use_container_width = True, on_click = translate_image, args = (imageCaptured,))
 
 
-
+    # define the functionality of tab 1
     with tab2:
 
-        # test = st.file_uploader("input the sign_mnist_test.csv file here please!!")
+        # read in the "clean" pre-prepared sign language data for use in this tab
         test = pd.read_csv('./sign_mnist_test.csv')
 
-        # klass data prep
-        test["label"][test["label"]>=10] = test["label"] -1
+        # make the labels of the data consecutive since we don't have 'J' or 'Z'
+        test["label"][test["label"] >= 10] = test["label"] - 1
 
+        # split the data into the pixel components (X) and the labels (Y)
         test_data = test.drop("label", axis = 1)
         test_labels = test['label']
-        test_data = np.array(test_data)
 
+        # normalize the data using numpy from [0, 255] to [0, 1]
+        test_data = np.array(test_data)
         test_data = test_data/255
 
-        test_data = test_data.reshape(test_data.shape[0], 28, 28, 1)
-        
-        index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h', 8: 'i', 9: 'k', 10: 'l', 11: 'm', 12: 'n', 13: 'o', 14: 'p', 15: 'q', 16: 'r', 17: 's', 18: 't', 19: 'u', 20: 'v', 21: 'w', 22: 'x', 23: 'y'}
-        letter_to_index = dict([(value, key) for key, value in index_to_letter.items()])
+        # introduce the batch dimension, as the model expects
+        test_data = test_data.reshape(test_data.shape[0], 28, 28, 1)        
 
+        # if we've loaded in the data properly, let the user select a letter
         if test_data is not None:
-            # user picks a letter
+            
+            # store the user's letter input
             letter = st.text_input('Letter Input', '', placeholder = 'Enter a letter...')
 
-            if letter != '':
-                index = letter_to_index[letter]
+            # perform the task if the user typed in one letter
+            if len(letter) == 1:
 
                 # filter test data for the chosen letter
+                index = letter_to_index[letter]
                 df = test_data[test_labels == index, :]
 
                 # obtain one random row of the chosen letter
@@ -185,31 +183,29 @@ def main():
                 predictions = klaasmodel.predict(df, verbose = 0)
                 predicted_label = np.argmax(predictions, axis = 1)[0]
 
+                # store the predicted letter and the true letter
                 pred_letter = index_to_letter[predicted_label]
                 true_letter = letter
 
-                ## note the changes i made to this line.  I need to add the st.pyplot and the .figure here at the end
+                # save an image displaying the randomly selected image
                 fig, ax = plt.subplots(1, 1, figsize = (5, 5))
                 plt.imshow(df.reshape(28, 28, 1), cmap = 'gray')
                 plt.axis('off')
                 plt.tight_layout()
                 plt.savefig('letter_image.png')
 
+                # use columns for the purpose of centering the image and making it larger
                 col1, col2, col3 = st.columns([1, 3, 1])
-
                 with col1:
                     st.write(' ')
-
                 with col2:
                     st.image('letter_image.png')
-
                 with col3:
                     st.write(' ')
-                # st.pyplot(fig.figure)
 
                 # st.pyplot(plt.imshow(df.reshape(28,28,1), cmap='gray').figure)
                 # plt.axis('off')
-                plt.show()
+                # plt.show()
 
                 df_table = pd.DataFrame({'Predicted Letter': [pred_letter],
                                          'Actual Letter': [true_letter]})
