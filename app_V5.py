@@ -49,8 +49,8 @@ letter_to_index = dict([(value, key) for key, value in index_to_letter.items()])
 def translate_image(imageCaptured):
 
     # store a 'session state' variable, which persists through repeated actions in the application
-    if 'count' not in st.session_state:
-        st.session_state.count = []
+    if 'textlist' not in st.session_state:
+        st.session_state.textlist = []
 
     # open the captured image
     img = Image.open(imageCaptured)
@@ -103,7 +103,7 @@ def translate_image(imageCaptured):
     # use the sign language translation CNN model to translate the image and store it in the persistent session state
     prediction = np.argmax(klaasmodel.predict(img_array), axis = 1 )[0]
     pred_letter = index_to_letter[prediction]
-    st.session_state.count.append(pred_letter)
+    st.session_state.textlist.append(pred_letter)
 
 
 # main streamlit function
@@ -129,10 +129,10 @@ def main():
         st.markdown('<center><p style="font-size:60px; color:#ffffff; background-color:#041E42; padding: 10px;">Sign Language Translator</p></center>', unsafe_allow_html=True)
         
         # only display the translated letters if we've attempted to translate at least one
-        if 'count' in st.session_state:
+        if 'textlist' in st.session_state:
 
             # display the translated letters consecutively
-            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.count)}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="font-size:40px;">Translated Letters : {"".join(st.session_state.textlist)}</p>', unsafe_allow_html=True)
 
         # capture a live image using the camera
         imageCaptured = st.camera_input("Do some sign language!" , help = "Do some sign language!")
