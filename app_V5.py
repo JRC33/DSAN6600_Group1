@@ -41,7 +41,7 @@ index_to_letter = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f',
 letter_to_index = dict([(value, key) for key, value in index_to_letter.items()])
 
 # store a 'session state' variable, which persists through repeated actions in the application
-st.session_state['count'] = 0
+# st.session_state['count'] = 0
 
 
 
