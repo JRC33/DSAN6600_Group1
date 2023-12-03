@@ -142,7 +142,7 @@ def main():
     with tab2:
 
         # read in the "clean" pre-prepared sign language data for use in this tab
-        test = pd.read_csv('./sign_mnist_test.csv')
+        test = pd.read_csv('./data/sign_mnist_test.csv')
 
         # make the labels of the data consecutive since we don't have 'J' or 'Z'
         test["label"][test["label"] >= 10] = test["label"] - 1
